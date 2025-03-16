@@ -1,0 +1,11 @@
+[Error: Cannot find module '/vercel/path0/node_modules/.pnpm/bcrypt@5.1.1/node_modules/bcrypt/lib/binding/napi-v3/bcrypt_lib.node'
+
+// app/seed/route.ts
+-import bcrypt from 'bcrypt';
++import bcrypt from 'bcryptjs';
+
+package.json
+-"bcrypt": "^5.1.1",
++"bcryptjs": "^3.0.2",
+
+https://qiita.com/nskydiving/items/153e2ab5068feebbead3
