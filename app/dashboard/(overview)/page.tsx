@@ -2,22 +2,32 @@
 // To create a nested route, you can nest folders inside each other and add page.tsx files inside them.
 // For example: /app/dashboard/page.tsx is associated with the path  /dashboard
 
-import { Card } from '@/app/ui/dashboard/cards';
+// import { Card } from '@/app/ui/dashboard/cards';
 import RevenueChart from '@/app/ui/dashboard/revenue-chart';
 import LatestInvoices from '@/app/ui/dashboard/latest-invoices';
 import { lusitana } from '@/app/ui/fonts';
 
 import {
-  fetchRevenue,
-  fetchLatestInvoices,
+  // fetchRevenue,
+  // fetchLatestInvoices,
   fetchCardData,
 } from '@/app/lib/data';
+
+import { Suspense } from 'react';
+
+import CardWrapper from '@/app/ui/dashboard/cards';
+
+import {
+  RevenueChartSkeleton,
+  LatestInvoicesSkeleton,
+  CardsSkeleton,
+} from '@/app/ui/skeletons';
 
 // The page is an async Server Component. This allows you to use await to fetch data.
 export default async function Page() {
   // // OPT 1 - we make a request waterfall
-  const revenue = await fetchRevenue();
-  const latestInvoices = await fetchLatestInvoices();
+  // const revenue = await fetchRevenue();
+  // const latestInvoices = await fetchLatestInvoices();
 
   const cardData = await fetchCardData();
   const {
@@ -30,50 +40,25 @@ export default async function Page() {
   // // This pattern is not necessarily bad. There may be cases where you want waterfalls because you want a condition to be satisfied before you make the next request. For example, you might want to fetch a user's ID and profile information first. Once you have the ID, you might then proceed to fetch their list of friends. In this case, each request is contingent on the data returned from the previous request.
   // // However, this behavior can also be unintentional and impact performance.
 
-  // // // OPT 2 - My - we can prevent request waterfall via using await Promise.all( .. )
-  // // // However, there is one disadvantage of relying only on this JavaScript pattern (Promise.all) : what happens if one data request is slower than all the others? Let's find out more in the next 8 chapter.
-  // const asyncData = await Promise.all([
-  //   fetchRevenue(),
-  //   fetchLatestInvoices(),
-  //   fetchCardData(),
-  // ]);
-
-  // const [
-  //   revenue,
-  //   latestInvoices,
-  //   {
-  //     numberOfCustomers,
-  //     numberOfInvoices,
-  //     totalPaidInvoices,
-  //     totalPendingInvoices,
-  //   },
-  //   // cardData
-  // ] = asyncData;
-  // // const {
-  // //   numberOfCustomers,
-  // //   numberOfInvoices,
-  // //   totalPaidInvoices,
-  // //   totalPendingInvoices,
-  // // } = cardData;
-
   return (
     <main>
       <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
         Dashboard
       </h1>
-      <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-4'>
-        <Card title='Collected' value={totalPaidInvoices} type='collected' />
-        <Card title='Pending' value={totalPendingInvoices} type='pending' />
-        <Card title='Total Invoices' value={numberOfInvoices} type='invoices' />
-        <Card
-          title='Total Customers'
-          value={numberOfCustomers}
-          type='customers'
-        />
-      </div>
+      <Suspense fallback={<CardsSkeleton />}>
+        <CardWrapper />
+      </Suspense>
       <div className='mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8'>
-        <RevenueChart revenue={revenue} />
-        <LatestInvoices latestInvoices={latestInvoices} />
+        {/* <RevenueChart revenue={revenue} /> */}
+
+        {/* Then, import <Suspense> from React, and wrap it around <RevenueChart />. You can pass it a fallback component called <RevenueChartSkeleton>. */}
+        <Suspense fallback={<RevenueChartSkeleton />}>
+          <RevenueChart />
+        </Suspense>
+
+        <Suspense fallback={<LatestInvoicesSkeleton />}>
+          <LatestInvoices />
+        </Suspense>
       </div>
     </main>
   );
@@ -91,3 +76,5 @@ export default async function Page() {
 
     - At the page level, with the loading.tsx file (which creates <Suspense> for you).
     - At the component level, with <Suspense> for more granular control.  */
+
+// Where you place your suspense boundaries will vary depending on your application. In general, it's good practice to move your data fetches down to the components that need it, and then wrap those components in Suspense. But there is nothing wrong with streaming the sections or the whole page if that's what your application needs.
