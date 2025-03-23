@@ -1,3 +1,5 @@
+// page.tsx is a special Next.js file that exports a React component, and it's required for the route to be accessible.  Page inside page.tsx - or another layout - is by default (automatically) an child of Layout (or RootLayout) in layout.tsx
+
 import AcmeLogo from '@/app/ui/acme-logo';
 import { ArrowRightIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
@@ -55,3 +57,15 @@ export default function Page() {
     </main>
   );
 }
+
+// Tailwind предоставляет пять встроенных breakpoints:
+
+// sm: — от 640px.
+
+// md: — от 768px.
+
+// lg: — от 1024px.
+
+// xl: — от 1280px.
+
+// 2xl: — от 1536px.

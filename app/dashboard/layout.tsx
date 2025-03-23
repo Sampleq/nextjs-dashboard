@@ -1,3 +1,7 @@
+// In Next.js, you can use a special layout.tsx file to create UI that is shared between multiple pages.
+
+// The <Layout /> component receives a children prop. This child can either be a page or another layout. In our case, the pages inside /dashboard will automatically be nested inside a <Layout />
+
 import SideNav from '@/app/ui/dashboard/sidenav';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
