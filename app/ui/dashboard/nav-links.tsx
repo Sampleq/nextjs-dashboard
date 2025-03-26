@@ -1,8 +1,7 @@
 'use client';
+// Since usePathname() is a React hook, we'll need to turn nav-links.tsx into a Client Component via 'use client' directive in the top of the file.
 
 // Next.js provides a hook called usePathname() that you can use to check the path and implement UI pattern to show an active link to indicate to the user what page they are currently on.
-
-// Since usePathname() is a React hook, we'll need to turn nav-links.tsx into a Client Component via 'use client' directive in the top of the file.
 
 import {
   UserGroupIcon,
@@ -10,6 +9,7 @@ import {
   DocumentDuplicateIcon,
 } from '@heroicons/react/24/outline';
 
+// to get the user's current path from the URL, Next.js provides a hook called usePathname()
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 
@@ -45,8 +45,8 @@ export default function NavLinks() {
               }
             )}
           >
-            <LinkIcon className='w-6' />
-            <p className='hidden md:block'>{link.name}</p>
+            <LinkIcon className="w-6" />
+            <p className="hidden md:block">{link.name}</p>
           </Link>
         );
       })}

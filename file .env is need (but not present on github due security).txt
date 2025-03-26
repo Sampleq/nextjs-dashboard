@@ -1,0 +1,1 @@
+.env is in the ignored files - in .gitignore - to prevent your database secrets from being exposed when you push to GitHub.

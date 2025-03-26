@@ -1,3 +1,6 @@
+// Streaming is a data transfer technique that allows you to break down a route into smaller "chunks" and progressively stream them from the server to the client as they become ready.
+// Streaming a whole page with loading.tsx
+
 // loading.tsx is a special Next.js file built on top of React Suspense. It allows you to create fallback UI to show as a replacement while page content loads.
 // Since <SideNav> (in layout.tsx) is static, it's shown immediately. The user can interact with <SideNav> while the dynamic content is loading.
 

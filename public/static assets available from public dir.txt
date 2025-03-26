@@ -1,0 +1,3 @@
+Next.js can serve static assets, like images, under the top-level /public folder.
+
+Files inside /public can be referenced in your application.

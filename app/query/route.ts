@@ -24,3 +24,6 @@ export async function GET() {
     return Response.json({ error }, { status: 500 });
   }
 }
+
+// navigate to localhost:3000/query -  You should see that an invoice amount and name is returned.
+// В Next.js (начиная с версии 13+) файл route.ts используется для создания API-эндпоинтов в рамках архитектуры App Router. Это альтернатива традиционным API-роутам из pages/api. - In Next.js, you can create API endpoints using Route Handlers.
