@@ -4,19 +4,19 @@
 
 // page.tsx is a special Next.js file that exports a React component, and it's required for the route to be accessible.
 
-import RevenueChart from '@/app/ui/dashboard/revenue-chart';
-import LatestInvoices from '@/app/ui/dashboard/latest-invoices';
-import { lusitana } from '@/app/ui/fonts';
+import RevenueChart from "@/app/ui/dashboard/revenue-chart";
+import LatestInvoices from "@/app/ui/dashboard/latest-invoices";
+import { lusitana } from "@/app/ui/fonts";
 
-import { Suspense } from 'react';
+import { Suspense } from "react";
 
-import CardWrapper from '@/app/ui/dashboard/cards';
+import CardWrapper from "@/app/ui/dashboard/cards";
 
 import {
   RevenueChartSkeleton,
   LatestInvoicesSkeleton,
   CardsSkeleton,
-} from '@/app/ui/skeletons';
+} from "@/app/ui/skeletons";
 
 // Now Page doesn't need to be async - since all async logic is inside components wrapped in Suspense
 
@@ -27,9 +27,9 @@ export default function Page() {
       <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
         Dashboard
       </h1>
-      <Suspense fallback={<CardsSkeleton />}>
-        <CardWrapper />
-      </Suspense>
+      {/* <Suspense fallback={<CardsSkeleton />}> */}
+      <CardWrapper />
+      {/* </Suspense> */}
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
         {/* <RevenueChart revenue={revenue} /> 
          we will fetch data inside <RevenueChart /> */}
