@@ -10,6 +10,8 @@ import {
 import Link from 'next/link';
 import { Button } from '@/app/ui/button';
 
+import { updateInvoice } from '@/app/lib/actions';
+
 export default function EditInvoiceForm({
   invoice,
   customers,
@@ -17,8 +19,12 @@ export default function EditInvoiceForm({
   invoice: InvoiceForm;
   customers: CustomerField[];
 }) {
+  // you want to pass the id to the Server Action so you can update the right record in your database. You cannot pass the id as an argument like so: <form action={updateInvoice(id)}> Instead, you can pass id to the Server Action using JS bind. This will ensure that any values passed to the Server Action are encoded.
+  const updateInvoiceWithId = updateInvoice.bind(null, invoice.id);
+
   return (
-    <form>
+    // Note: Using a hidden input field in your form also works (e.g. <input type="hidden" name="id" value={invoice.id} />). However, the values will appear as full text in the HTML source, which is not ideal for sensitive data.
+    <form action={updateInvoiceWithId}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Customer Name */}
         <div className="mb-4">
@@ -35,7 +41,7 @@ export default function EditInvoiceForm({
               <option value="" disabled>
                 Select a customer
               </option>
-              {customers.map((customer) => (
+              {customers.map(customer => (
                 <option key={customer.id} value={customer.id}>
                   {customer.name}
                 </option>
