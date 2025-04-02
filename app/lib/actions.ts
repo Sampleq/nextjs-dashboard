@@ -4,17 +4,6 @@
 
 import { z } from 'zod';
 // define a schema that matches the shape of your form object. This schema will validate the formData before saving it to a database.
-
-import postgres from 'postgres';
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
-
-// Next.js has a client-side router cache that stores the route segments in the user's browser for a time. Along with prefetching, this cache ensures that users can quickly navigate between routes while reducing the number of requests made to the server.
-// Since you're updating the data displayed in the invoices route, you want to clear this cache and trigger a new request to the server. You can do this with the revalidatePath function from Next.js:
-
-import { revalidatePath } from 'next/cache';
-
-import { redirect } from 'next/navigation';
-
 const FormSchema = z.object({
   id: z.string(),
   customerId: z.string(),
@@ -25,6 +14,16 @@ const FormSchema = z.object({
 
 // пропускаем поля id: и date:
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
+
+import postgres from 'postgres';
+const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
+
+// Next.js has a client-side router cache that stores the route segments in the user's browser for a time. Along with prefetching, this cache ensures that users can quickly navigate between routes while reducing the number of requests made to the server.
+// Since you're updating the data displayed in the invoices route, you want to clear this cache and trigger a new request to the server. You can do this with the revalidatePath function from Next.js:
+
+import { revalidatePath } from 'next/cache';
+
+import { redirect } from 'next/navigation';
 
 export async function createInvoice(formData: FormData) {
   // OPT - 1
@@ -46,13 +45,19 @@ export async function createInvoice(formData: FormData) {
   const amountInCents = amount * 100;
   const date = new Date().toISOString().split('T')[0];
 
-  await sql`
+  try {
+    await sql`
         INSERT INTO invoices (customer_id, amount, status, date)
         VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
-  `;
+        `;
+  } catch (error) {
+    // We'll log the error to the console for now
+    console.error(error);
+  }
 
   revalidatePath('/dashboard/invoices');
   redirect('/dashboard/invoices');
+  // Note how redirect is being called outside of the try/catch block. This is because redirect works by throwing an error, which would be caught by the catch block. To avoid this, you can call redirect after try/catch. redirect would only be reachable if try is successful.
 }
 
 // Use Zod to update the expected types
@@ -67,21 +72,33 @@ export async function updateInvoice(id: string, formData: FormData) {
 
   const amountInCents = amount * 100;
 
-  await sql`
-      UPDATE invoices
-      SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
-      WHERE id = ${id}
-    `;
+  try {
+    await sql`
+        UPDATE invoices
+        SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
+        WHERE id = ${id}
+        `;
+  } catch (error) {
+    // We'll log the error to the console for now
+    console.error(error);
+  }
 
   revalidatePath('/dashboard/invoices');
   redirect('/dashboard/invoices');
 }
 
 export async function deleteInvoice(id: string) {
-  await sql`DELETE FROM invoices WHERE id = ${id}`;
+  // for testing error andling by error.tsx
+  throw new Error('Failed to Delete Invoice');
+
+  try {
+    await sql`DELETE FROM invoices WHERE id = ${id}`;
+  } catch (error) {
+    // We'll log the error to the console for now
+    console.error(error);
+  }
 
   revalidatePath('/dashboard/invoices');
-
   // Since this action is being called in the /dashboard/invoices path, you don't need to call redirect.
   // Calling revalidatePath will trigger a new server request and re-render the table.
 }
