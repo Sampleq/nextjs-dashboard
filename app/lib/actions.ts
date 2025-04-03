@@ -5,10 +5,16 @@
 import { z } from 'zod';
 // define a schema that matches the shape of your form object. This schema will validate the formData before saving it to a database.
 const FormSchema = z.object({
-  id: z.string(),
+  id: z.string({
+    invalid_type_error: 'Please select a customer.', // add a friendly message if the user doesn't select a customer
+  }),
   customerId: z.string(),
-  amount: z.coerce.number(), // The amount field is specifically set to coerce (change) from a string to a number while also validating its type.
-  status: z.enum(['pending', 'paid']),
+  amount: z.coerce
+    .number() // The amount field is specifically set to coerce (change) from a string to a number while also validating its type.
+    .gt(0, { message: 'Please enter an amount greater than $0.' }), // Since we are coercing the amount type from string to number, it'll default to zero if the string is empty. Let's tell Zod we always want the amount greater than 0 with the .gt() function.
+  status: z.enum(['pending', 'paid'], {
+    invalid_type_error: 'Please select an invoice status.', // add a friendly message if the user doesn't select a status
+  }),
   date: z.string(),
 });
 
@@ -25,7 +31,18 @@ import { revalidatePath } from 'next/cache';
 
 import { redirect } from 'next/navigation';
 
-export async function createInvoice(formData: FormData) {
+export type State = {
+  errors?: {
+    customerId?: string[];
+    amount?: string[];
+    status?: string[];
+  };
+  message?: string | null;
+};
+
+export async function createInvoice(prevState: State, formData: FormData) {
+  // prevState - contains the state passed from the useActionState hook. You won't be using it in the action in this example, but it's a required prop.
+
   // OPT - 1
   // If you're working with forms that have many fields, you may want to consider using the entries() method with JavaScript's Object.fromEntries()
   const rawFormData = {
@@ -40,7 +57,18 @@ export async function createInvoice(formData: FormData) {
   // To handle type validation, you have a few options. While you can manually validate types, using a type validation library can save you time and effort. For your example, we'll use Zod, a TypeScript-first validation library that can simplify this task for you.
 
   console.log(rawFormData);
-  const { customerId, amount, status } = CreateInvoice.parse(rawFormData);
+  const validatedFields = CreateInvoice.safeParse(rawFormData);
+
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create Invoice.',
+    };
+  }
+
+  // Prepare data for insertion into the database
+  const { customerId, amount, status } = validatedFields.data;
 
   const amountInCents = amount * 100;
   const date = new Date().toISOString().split('T')[0];
@@ -53,8 +81,14 @@ export async function createInvoice(formData: FormData) {
   } catch (error) {
     // We'll log the error to the console for now
     console.error(error);
+
+    // If a database error occurs, return a more specific error.
+    return {
+      message: 'Database Error: Failed to Create Invoice.',
+    };
   }
 
+  // Revalidate the cache for the invoices page and redirect the user.
   revalidatePath('/dashboard/invoices');
   redirect('/dashboard/invoices');
   // Note how redirect is being called outside of the try/catch block. This is because redirect works by throwing an error, which would be caught by the catch block. To avoid this, you can call redirect after try/catch. redirect would only be reachable if try is successful.
@@ -88,8 +122,8 @@ export async function updateInvoice(id: string, formData: FormData) {
 }
 
 export async function deleteInvoice(id: string) {
-  // for testing error andling by error.tsx
-  throw new Error('Failed to Delete Invoice');
+  //   // for testing error andling by error.tsx
+  //   throw new Error('Failed to Delete Invoice');
 
   try {
     await sql`DELETE FROM invoices WHERE id = ${id}`;

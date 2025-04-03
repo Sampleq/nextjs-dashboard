@@ -25,6 +25,7 @@ export default async function Page(props: {
     fetchCustomers(),
   ]);
 
+  // показываем компонент not-found.tsx если инвойс не найден
   if (!invoice) {
     notFound();
     // Then, to show error UI to the user, create a not-found.tsx file inside the /edit folder.

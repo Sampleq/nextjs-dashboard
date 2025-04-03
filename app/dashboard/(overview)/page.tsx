@@ -4,19 +4,19 @@
 
 // page.tsx is a special Next.js file that exports a React component, and it's required for the route to be accessible.
 
-import RevenueChart from "@/app/ui/dashboard/revenue-chart";
-import LatestInvoices from "@/app/ui/dashboard/latest-invoices";
-import { lusitana } from "@/app/ui/fonts";
+import RevenueChart from '@/app/ui/dashboard/revenue-chart';
+import LatestInvoices from '@/app/ui/dashboard/latest-invoices';
+import { lusitana } from '@/app/ui/fonts';
 
-import { Suspense } from "react";
+import { Suspense } from 'react';
 
-import CardWrapper from "@/app/ui/dashboard/cards";
+import CardWrapper from '@/app/ui/dashboard/cards';
 
 import {
   RevenueChartSkeleton,
   LatestInvoicesSkeleton,
-  CardsSkeleton,
-} from "@/app/ui/skeletons";
+  // CardsSkeleton,
+} from '@/app/ui/skeletons';
 
 // Now Page doesn't need to be async - since all async logic is inside components wrapped in Suspense
 
