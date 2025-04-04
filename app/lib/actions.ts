@@ -5,10 +5,10 @@
 import { z } from 'zod';
 // define a schema that matches the shape of your form object. This schema will validate the formData before saving it to a database.
 const FormSchema = z.object({
-  id: z.string({
+  id: z.string(),
+  customerId: z.string({
     invalid_type_error: 'Please select a customer.', // add a friendly message if the user doesn't select a customer
   }),
-  customerId: z.string(),
   amount: z.coerce
     .number() // The amount field is specifically set to coerce (change) from a string to a number while also validating its type.
     .gt(0, { message: 'Please enter an amount greater than $0.' }), // Since we are coercing the amount type from string to number, it'll default to zero if the string is empty. Let's tell Zod we always want the amount greater than 0 with the .gt() function.
@@ -58,6 +58,7 @@ export async function createInvoice(prevState: State, formData: FormData) {
 
   console.log(rawFormData);
   const validatedFields = CreateInvoice.safeParse(rawFormData);
+  console.log('validatedFields', validatedFields);
 
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
@@ -97,12 +98,27 @@ export async function createInvoice(prevState: State, formData: FormData) {
 // Use Zod to update the expected types
 const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 
-export async function updateInvoice(id: string, formData: FormData) {
-  const { customerId, amount, status } = UpdateInvoice.parse({
+export async function updateInvoice(
+  id: string,
+  prevState: State,
+  formData: FormData
+) {
+  const validatedFields = UpdateInvoice.safeParse({
     customerId: formData.get('customerId'),
     amount: formData.get('amount'),
     status: formData.get('status'),
   });
+  // console.log('validatedFields', validatedFields);
+
+  // without this check we' ll get an errors reading props from validatedFields.data
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Update (Edit) Invoice.',
+    };
+  }
+
+  const { customerId, amount, status } = validatedFields.data;
 
   const amountInCents = amount * 100;
 
@@ -113,8 +129,9 @@ export async function updateInvoice(id: string, formData: FormData) {
         WHERE id = ${id}
         `;
   } catch (error) {
-    // We'll log the error to the console for now
-    console.error(error);
+    return {
+      message: 'Database Error: Failed to Update (Edit) Invoice.',
+    };
   }
 
   revalidatePath('/dashboard/invoices');

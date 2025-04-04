@@ -1,5 +1,11 @@
 'use client';
 
+import { useActionState } from 'react';
+/* the useActionState() hook:
+
+Takes two arguments: (action, initialState).
+Returns two values: [state, formAction] - the form state, and a function to be called when the form is submitted. */
+
 import { CustomerField, InvoiceForm } from '@/app/lib/definitions';
 import {
   CheckIcon,
@@ -10,7 +16,7 @@ import {
 import Link from 'next/link';
 import { Button } from '@/app/ui/button';
 
-import { updateInvoice } from '@/app/lib/actions';
+import { updateInvoice, State } from '@/app/lib/actions';
 
 export default function EditInvoiceForm({
   invoice,
@@ -22,9 +28,13 @@ export default function EditInvoiceForm({
   // you want to pass the id to the Server Action so you can update the right record in your database. You cannot pass the id as an argument like so: <form action={updateInvoice(id)}> Instead, you can pass id to the Server Action using JS bind. This will ensure that any values passed to the Server Action are encoded.
   const updateInvoiceWithId = updateInvoice.bind(null, invoice.id);
 
+  const initialState: State = { message: null, errors: {} };
+  const [state, formAction] = useActionState(updateInvoiceWithId, initialState);
+  console.log('state', state);
+
   return (
     // Note: Using a hidden input field in your form also works (e.g. <input type="hidden" name="id" value={invoice.id} />). However, the values will appear as full text in the HTML source, which is not ideal for sensitive data.
-    <form action={updateInvoiceWithId}>
+    <form action={formAction}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Customer Name */}
         <div className="mb-4">
@@ -66,8 +76,18 @@ export default function EditInvoiceForm({
                 defaultValue={invoice.amount}
                 placeholder="Enter USD amount"
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
+                aria-describedby="amount-error" //  This establishes a relationship between the select element and the error message container. It indicates that the container with id="amount-error" describes the select element
               />
               <CurrencyDollarIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+            </div>
+
+            <div id="amount-error" aria-live="polite" aria-atomic="true">
+              {state.errors?.amount &&
+                state.errors.amount.map((err_msg: string) => (
+                  <p className="mt-2 text-sm text-red-500" key={err_msg}>
+                    {err_msg}
+                  </p>
+                ))}
             </div>
           </div>
         </div>
@@ -114,6 +134,11 @@ export default function EditInvoiceForm({
             </div>
           </div>
         </fieldset>
+        <div id="edit-invoice-error" aria-live="polite" aria-atomic="true">
+          {state.errors && (
+            <p className="mt-2 text-sm text-red-500">{state.message}</p>
+          )}
+        </div>
       </div>
       <div className="mt-6 flex justify-end gap-4">
         <Link
