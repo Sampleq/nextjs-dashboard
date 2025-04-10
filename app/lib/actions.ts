@@ -2,6 +2,9 @@
 // By adding the 'use server', you mark all the exported functions within the file as Server Actions.
 // You can also write Server Actions directly inside Server Components by adding "use server" inside the action. But for this course, we'll keep them all organized in a separate file. We recommend having a separate file for your actions.
 
+import { signIn } from '@/auth';
+import { AuthError } from 'next-auth';
+
 import { z } from 'zod';
 // define a schema that matches the shape of your form object. This schema will validate the formData before saving it to a database.
 const FormSchema = z.object({
@@ -129,6 +132,8 @@ export async function updateInvoice(
         WHERE id = ${id}
         `;
   } catch (error) {
+    console.log(error);
+
     return {
       message: 'Database Error: Failed to Update (Edit) Invoice.',
     };
@@ -152,4 +157,23 @@ export async function deleteInvoice(id: string) {
   revalidatePath('/dashboard/invoices');
   // Since this action is being called in the /dashboard/invoices path, you don't need to call redirect.
   // Calling revalidatePath will trigger a new server request and re-render the table.
+}
+
+export async function authenticate(
+  prevState: string | undefined,
+  formData: FormData
+) {
+  try {
+    await signIn('credentials', formData);
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'CredentialsSignin':
+          return 'Invalid credentials.';
+        default:
+          return 'Something went wrong.';
+      }
+    }
+    throw error;
+  }
 }
