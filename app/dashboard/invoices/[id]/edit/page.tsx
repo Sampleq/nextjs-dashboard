@@ -4,6 +4,11 @@ import { fetchInvoiceById, fetchCustomers } from '@/app/lib/data';
 
 import { notFound } from 'next/navigation';
 
+import { Metadata } from 'next';
+export const metadata: Metadata = {
+  title: 'Edit invoice',
+};
+
 export default async function Page(props: {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ [key: string]: string }>;

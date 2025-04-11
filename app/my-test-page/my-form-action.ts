@@ -11,6 +11,7 @@ const user = usersFromFile[0];
  * igor@mail.com - 777pass
  * dmitriy@mail.com - 123123
  * dmitriy.s@mail.com - 123123
+ * margo@mail.com - 969696
  */
 
 // https://www.uuidgenerator.net/
@@ -54,7 +55,7 @@ export async function formAction() {
 
     */
 
-    const hashedPassword = await bcrypt.hash('123123', 10);
+    const hashedPassword = await bcrypt.hash('969696', 10);
 
     /*
     INSERT INTO users (id, name, email, password)
@@ -63,7 +64,7 @@ export async function formAction() {
     */
 
     await sql`INSERT INTO users (id, name, email, password)
-    VALUES (${`154cc5af-1a7b-4984-b068-1064d468598c`}, ${'Dmitriy'}, ${'dmitriy.s@mail.com'}, ${hashedPassword})
+    VALUES (${`22e1077b-bc8d-4da1-bdc1-3a6105320557`}, ${'Margo'}, ${'margo@mail.com'}, ${hashedPassword})
     ON CONFLICT (id) DO NOTHING
   `;
 

@@ -18,6 +18,11 @@ import {
   // CardsSkeleton,
 } from '@/app/ui/skeletons';
 
+import { Metadata } from 'next';
+export const metadata: Metadata = {
+  title: 'Dashboard',
+};
+
 // Now Page doesn't need to be async - since all async logic is inside components wrapped in Suspense
 
 // In general, it's good practice to move your data fetches down to the components that need it, and then wrap those components in Suspense. But there is nothing wrong with streaming the sections or the whole page if that's what your application needs.
@@ -30,7 +35,7 @@ export default function Page() {
       {/* <Suspense fallback={<CardsSkeleton />}> */}
       <CardWrapper />
       {/* </Suspense> */}
-      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
+      <div className='mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8'>
         {/* <RevenueChart revenue={revenue} /> 
          we will fetch data inside <RevenueChart /> */}
         {/* Then, import <Suspense> from React, and wrap it around <RevenueChart />. You can pass it a fallback component called <RevenueChartSkeleton>. */}
