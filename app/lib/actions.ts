@@ -176,6 +176,9 @@ export async function authenticate(
           return 'Something went wrong.';
       }
     }
+
+    console.log(' -- error async function authenticate', error);
+
     throw error;
   }
 }
